@@ -8,15 +8,14 @@ public class Customer {
     private final String email;
 
     public Customer(String firstName, String lastName, String email) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-
         String emailRegex = "^(\\S+)@(\\S+)\\.com$";
         Pattern pattern = Pattern.compile(emailRegex);
-        if (pattern.matcher(email).matches() != true){
+        if (!pattern.matcher(email).matches()) {
             throw new IllegalArgumentException("The email is not valid");
         }
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email.toLowerCase();
     }
 
     public String getFirstName() {
@@ -39,19 +38,4 @@ public class Customer {
                 ", email='" + email + '\'' +
                 '}';
     }
-
-/*    public static void main(String[] args) {
-        try {
-            // Creating a new Customer object with valid email
-            Customer customer1 = new Customer("Francesca", "Gatti", "francesca@gmail.com");
-            System.out.println(customer1);
-
-            // Creating a new Customer object with an invalid email (will throw an exception)
-            Customer customer2 = new Customer("Jane", "Smith", "jane.smith@gmail");
-            System.out.println(customer2);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }*/
-
 }

@@ -5,24 +5,17 @@ package model;
 
 public class FreeRoom extends Room {
 
-
-    public FreeRoom(String roomNumber, Double price, RoomType enumeration) {
-        super(roomNumber, 0.0, enumeration);
+    public FreeRoom(String roomNumber, RoomType enumeration) {
+        super(roomNumber, 0D, enumeration);
     }
 
     @Override
     public String toString() {
-        return super.toString();
+        return "FreeRoom{" +
+                "roomNumber='" + getRoomNumber() + '\'' +
+                ", price=" + getRoomPrice() +
+                ", enumeration='" + getRoomType() + '\'' +
+                '}';
     }
-    /*    public static void main(String[] args) {
-
-        FreeRoom freeRoom1 = new FreeRoom("102", 0.0, RoomTypeEnumeration.RoomType.DOUBLE);
-
-        System.out.println("Numero stanza: " + freeRoom1.getRoomNumber());
-        System.out.println("Prezzo stanza: " + freeRoom1.getRoomPrice());
-        System.out.println("Tipo stanza: " + freeRoom1.getRoomType());
-
-        System.out.println(freeRoom1);
-    }*/
 }
 

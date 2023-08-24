@@ -1,7 +1,6 @@
 package model;
 
-public class Room implements IRoom{
-
+public class Room implements IRoom {
     private final String roomNumber;
     private final Double price;
     private final RoomType enumeration;
@@ -40,15 +39,4 @@ public class Room implements IRoom{
                 ", enumeration=" + enumeration +
                 '}';
     }
-
-/*    public static void main(String[] args) {
-
-        Room room1 = new Room("101", 150.0, RoomTypeEnumeration.RoomType.SINGLE);
-
-        System.out.println("Numero stanza: " + room1.getRoomNumber());
-        System.out.println("Prezzo stanza: " + room1.getRoomPrice());
-        System.out.println("Tipo stanza: " + room1.getRoomType());
-
-        System.out.println(room1);
-    }*/
 }
