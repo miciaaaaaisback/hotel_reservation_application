@@ -1,4 +1,4 @@
-package reservationModel;
+package model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,7 +49,7 @@ public class Reservation {
 
             Customer customer = new Customer("John", "Doe", "john.doe@example.com");
 
-            Room room = new Room("101", 130.00, RoomTypeEnumeration.RoomType.SINGLE);
+            Room room = new Room("101", 130.00, RoomType.SINGLE);
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date checkInDate = dateFormat.parse("2023-07-25");

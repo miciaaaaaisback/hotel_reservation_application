@@ -1,4 +1,4 @@
-package reservationModel;
+package model;
 
 // I have already tested in my previous classes..
 public class Tester {

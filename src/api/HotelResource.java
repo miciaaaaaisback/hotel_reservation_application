@@ -1,8 +1,8 @@
 package api;
 
-import reservationModel.Customer;
-import reservationModel.IRoom;
-import reservationModel.Reservation;
+import model.Customer;
+import model.IRoom;
+import model.Reservation;
 import service.CustomerService;
 import service.ReservationService;
 

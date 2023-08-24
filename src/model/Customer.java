@@ -1,4 +1,4 @@
-package reservationModel;
+package model;
 
 import java.util.regex.Pattern;
 
@@ -12,11 +12,23 @@ public class Customer {
         this.lastName = lastName;
         this.email = email;
 
-        String emailRegex = "^(.+)@(.+).com$";
+        String emailRegex = "^(\\S+)@(\\S+)\\.com$";
         Pattern pattern = Pattern.compile(emailRegex);
         if (pattern.matcher(email).matches() != true){
             throw new IllegalArgumentException("The email is not valid");
         }
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Override
@@ -26,16 +38,6 @@ public class Customer {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 '}';
-    }
-
-    public String getEmail() {
-        return email;
-    }
-    public String getFirstName() {
-        return firstName;
-    }
-    public String getLastName() {
-        return lastName;
     }
 
 /*    public static void main(String[] args) {

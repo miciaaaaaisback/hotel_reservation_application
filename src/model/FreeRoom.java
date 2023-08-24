@@ -1,12 +1,12 @@
-package reservationModel;
+package model;
 
 //Ereditare una classe madre comporta che la sottoclasse avrà accesso ai campi e ai metodi della superclasse.
 // Questo significa che la sottoclasse può utilizzare questi membri direttamente come se fossero suoi, a meno che non siano stati dichiarati come privati (private) nella superclasse.
 
-public class FreeRoom extends Room{
+public class FreeRoom extends Room {
 
 
-    public FreeRoom(String roomNumber, Double price, RoomTypeEnumeration.RoomType enumeration) {
+    public FreeRoom(String roomNumber, Double price, RoomType enumeration) {
         super(roomNumber, 0.0, enumeration);
     }
 

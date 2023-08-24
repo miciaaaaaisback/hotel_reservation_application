@@ -1,6 +1,6 @@
 package service;
 
-import reservationModel.Customer;
+import model.Customer;
 import java.util.Collection;
 import java.util.Map;
 

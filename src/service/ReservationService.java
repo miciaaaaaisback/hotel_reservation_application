@@ -1,6 +1,6 @@
 package service;
 
-import reservationModel.*;
+import model.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

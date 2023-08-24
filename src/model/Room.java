@@ -1,14 +1,12 @@
-package reservationModel;
-
-import java.util.Date;
+package model;
 
 public class Room implements IRoom{
 
     private final String roomNumber;
     private final Double price;
-    private final RoomTypeEnumeration.RoomType enumeration;
+    private final RoomType enumeration;
 
-    public Room(String roomNumber, Double price, RoomTypeEnumeration.RoomType enumeration) {
+    public Room(String roomNumber, Double price, RoomType enumeration) {
         this.roomNumber = roomNumber;
         this.price = price;
         this.enumeration = enumeration;
@@ -25,7 +23,7 @@ public class Room implements IRoom{
     }
 
     @Override
-    public RoomTypeEnumeration.RoomType getRoomType() {
+    public RoomType getRoomType() {
         return enumeration;
     }
 
