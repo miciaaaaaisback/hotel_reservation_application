@@ -63,7 +63,19 @@ public class Main {
                     break;
                 case 3:
                     // Creazione di un account
-                    handleAccountCreation();
+                    System.out.println("Write your first name");
+                    String firstName = scanner.next().trim();
+                    System.out.println("Write your second name");
+                    System.out.println("Write your email");
+                    email = scanner.next().trim();
+                    try {
+                        Customer.checkEmail(email);
+                    } catch (IllegalArgumentException ex) {
+                        System.err.println("Invalid email.");
+                        break;
+                    }
+                    String secondName = scanner.next().trim();
+                    handleAccountCreation(hotelResource, firstName, secondName, email);
                     break;
                 case 4:
                     // Accesso all'area amministrativa
@@ -121,8 +133,13 @@ public class Main {
         }
     }
 
-    private static void handleAccountCreation() {
-
+    private static void handleAccountCreation(
+            HotelResource hotelResource,
+            String firstName,
+            String secondName,
+            String email) {
+        hotelResource.createACustomer(firstName, secondName, email);
+        System.out.println("User account successfully created.");
     }
 
     private static void handleAdminMenu(AdminMenu adminMenu) {
