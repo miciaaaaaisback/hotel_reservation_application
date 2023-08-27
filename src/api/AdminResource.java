@@ -10,7 +10,6 @@ import java.util.List;
 
 public class AdminResource {
 
-    // Reference to the CustomerService and ReservationService
     private static AdminResource INSTANCE;
     private CustomerService customerService = CustomerService.getInstance();
     private ReservationService reservationService = ReservationService.getInstance();

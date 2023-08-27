@@ -11,16 +11,12 @@ import java.util.Date;
 
 public class HotelResource {
 
-    // Reference to the CustomerService and ReservationService
-    //Creare istanze delle classi CustomerService e ReservationService all'interno della classe HotelResource è un modo per ottenere
-    //un riferimento a queste istanze e poterle utilizzare nei metodi della classe HotelResource.
-    //Questa approccio è chiamato "dependency injection" (iniezione di dipendenza), e serve a separare l'istanziazione delle dipendenze dal resto del codice.
-
     private static HotelResource INSTANCE;
     private CustomerService customerService = CustomerService.getInstance();
     private ReservationService reservationService = ReservationService.getInstance();
 
-    private HotelResource() {}
+    private HotelResource() {
+    }
 
     public Customer getCustomer(String email) {
         return customerService.getCustomer(email);

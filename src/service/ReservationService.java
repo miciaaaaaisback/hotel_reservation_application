@@ -8,10 +8,9 @@ public class ReservationService {
     private static ReservationService INSTANCE;
     private Collection<IRoom> rooms = new HashSet<>();
     private Collection<Reservation> reservations = new LinkedList<>();
-    //private static Collection<IRoom> availableRooms = new ArrayList<>();
-    //private static Collection<Reservation> customerReservations = new ArrayList<>();
 
-    private ReservationService() {}
+    private ReservationService() {
+    }
 
     public void addRoom(IRoom room) {
         rooms.add(room);
@@ -70,7 +69,7 @@ public class ReservationService {
 
     public void printAllReservations() {
         System.out.println("Printing all reservations");
-        for(Reservation reservation : reservations){
+        for (Reservation reservation : reservations) {
             System.out.println(reservation);
         }
         System.out.println("All reservations printed");
@@ -80,7 +79,7 @@ public class ReservationService {
         return rooms;
     }
 
-    public static ReservationService getInstance(){
+    public static ReservationService getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new ReservationService();
         }

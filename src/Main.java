@@ -31,7 +31,9 @@ public class Main {
                     Customer customer = null;
                     String email = null;
                     if (!haveAnAccount.contains("y")) {
-                        customer = createCustomer(scanner);
+                        System.err.println("You must have an account.");
+                        break;
+//                        customer = createCustomer(scanner);
                     } else {
                         System.out.println("Write yuor email.");
                         email = scanner.next().trim().toLowerCase();
@@ -116,7 +118,7 @@ public class Main {
                     checkOutDate);
             System.out.println("Room reserved: " + reservedRoom);
         } catch (NullPointerException ex) {
-            System.err.println("No customer found.");
+            System.err.println("Customer unregistered.");
         } catch (Exception ex) {
             System.err.println("No rooms avaiable");
         }
@@ -174,7 +176,7 @@ public class Main {
                     IRoom room4 = isFreeRoom.contains("y")
                             ? new FreeRoom(roomNumber, enumeration)
                             : new Room(roomNumber, roomPrice, enumeration);
-                    addRoom(adminResource, room4 );
+                    addRoom(adminResource, room4);
                     System.out.println("Room added.");
                     break;
                 case 5:

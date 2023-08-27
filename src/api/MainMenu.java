@@ -16,7 +16,7 @@ public class MainMenu {
     public int getUserChoice() {
         Scanner scanner = new Scanner(System.in);
         int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
+        scanner.nextLine();
         return choice;
 
     }
