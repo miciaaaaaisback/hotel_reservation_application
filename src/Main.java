@@ -50,7 +50,16 @@ public class Main {
                     break;
                 case 2:
                     // Visualizzazione delle prenotazioni dell'utente
-                    handleUserReservations();
+                    System.out.println("Write your email");
+                    email = scanner.next().trim();
+                    try {
+                        Customer.checkEmail(email);
+                    } catch (IllegalArgumentException ex) {
+                        System.err.println("Invalid email.");
+                        break;
+                    }
+                    handleUserReservations(hotelResource, email);
+
                     break;
                 case 3:
                     // Creazione di un account
@@ -106,8 +115,10 @@ public class Main {
         }
     }
 
-    private static void handleUserReservations() {
-
+    private static void handleUserReservations(HotelResource hotelResource, String email) {
+        for (Reservation reservation : hotelResource.getCustomersReservations(email)) {
+            System.out.println(reservation);
+        }
     }
 
     private static void handleAccountCreation() {
