@@ -10,7 +10,7 @@ public class AdminMenu {
         System.out.println("3. See all reservations");
         System.out.println("4. Add a room");
         System.out.println("5. Back to main menu");
-        System.out.print("Please select an option (0-5): ");
+        System.out.print("Please select an option (1-5): ");
     }
 
     public int getAdminChoice() {

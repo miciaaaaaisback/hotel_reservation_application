@@ -7,7 +7,6 @@ import model.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class Main {
 
@@ -27,31 +26,36 @@ public class Main {
             switch (choice) {
                 case 1:
                     // Ricerca e prenotazione di una stanza
-                    System.out.println("Write your email");
-                    String email = scanner.next().trim();
-                    try {
-                        Customer.checkEmail(email);
-                    } catch (IllegalArgumentException ex) {
-                        System.err.println("Invalid email.");
-                        break;
+                    System.out.println("Do you already have an account? Yes/No.");
+                    String haveAnAccount = scanner.next().trim().toLowerCase();
+                    Customer customer = null;
+                    String email = null;
+                    if (!haveAnAccount.contains("y")) {
+                        customer = createCustomer(scanner);
+                    } else {
+                        System.out.println("Write yuor email.");
+                        email = scanner.next().trim().toLowerCase();
+                        customer = hotelResource.getCustomer(email);
                     }
 
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                     Date checkIn;
                     Date checkOut;
                     try {
+                        System.out.println("Write your check in date in the format dd/MM/yyyy");
                         checkIn = sdf.parse(scanner.next().trim());
+                        System.out.println("Write your check out date in the format dd/MM/yyyy");
                         checkOut = sdf.parse(scanner.next().trim());
                     } catch (ParseException ex) {
                         System.err.println("Date format not correct.");
                         break;
                     }
-                    handleRoomReservation(hotelResource, email, checkIn, checkOut);
+                    handleRoomReservation(hotelResource, customer, checkIn, checkOut);
                     break;
                 case 2:
                     // Visualizzazione delle prenotazioni dell'utente
                     System.out.println("Write your email");
-                    email = scanner.next().trim();
+                    email = scanner.next().trim().toLowerCase();
                     try {
                         Customer.checkEmail(email);
                     } catch (IllegalArgumentException ex) {
@@ -63,23 +67,11 @@ public class Main {
                     break;
                 case 3:
                     // Creazione di un account
-                    System.out.println("Write your first name");
-                    String firstName = scanner.next().trim();
-                    System.out.println("Write your second name");
-                    System.out.println("Write your email");
-                    email = scanner.next().trim();
-                    try {
-                        Customer.checkEmail(email);
-                    } catch (IllegalArgumentException ex) {
-                        System.err.println("Invalid email.");
-                        break;
-                    }
-                    String secondName = scanner.next().trim();
-                    handleAccountCreation(hotelResource, firstName, secondName, email);
+                    handleAccountCreation(hotelResource, createCustomer(scanner));
                     break;
                 case 4:
                     // Accesso all'area amministrativa
-                    handleAdminMenu(adminMenu);
+                    handleAdminMenu(adminMenu, adminResource, scanner);
                     break;
                 case 5:
                     // Uscita dal programma
@@ -112,18 +104,21 @@ public class Main {
 
     private static void handleRoomReservation(
             HotelResource hotelResource,
-            String email,
+            Customer customer,
             Date checkInDate,
             Date checkOutDate) {
         Collection<IRoom> roomsFound = hotelResource.findARoom(checkInDate, checkOutDate);
         try {
             Reservation reservedRoom = hotelResource.bookARoom(
-                    email,
+                    customer.getEmail(),
                     roomsFound.stream().findFirst().get(),
                     checkInDate,
                     checkOutDate);
+            System.out.println("Room reserved: " + reservedRoom);
+        } catch (NullPointerException ex) {
+            System.err.println("No customer found.");
         } catch (Exception ex) {
-            System.out.println("No rooms avaiable");
+            System.err.println("No rooms avaiable");
         }
     }
 
@@ -135,14 +130,12 @@ public class Main {
 
     private static void handleAccountCreation(
             HotelResource hotelResource,
-            String firstName,
-            String secondName,
-            String email) {
-        hotelResource.createACustomer(firstName, secondName, email);
+            Customer customer) {
+        hotelResource.createACustomer(customer.getFirstName(), customer.getLastName(), customer.getEmail());
         System.out.println("User account successfully created.");
     }
 
-    private static void handleAdminMenu(AdminMenu adminMenu) {
+    private static void handleAdminMenu(AdminMenu adminMenu, AdminResource adminResource, Scanner scanner) {
         boolean backToMainMenu = false;
 
         while (!backToMainMenu) {
@@ -152,19 +145,37 @@ public class Main {
             switch (adminChoice) {
                 case 1:
                     // Visualizzazione di tutti i clienti
-                    displayAllCustomers();
+                    displayAllCustomers(adminResource);
                     break;
                 case 2:
                     // Visualizzazione di tutte le camere
-                    displayAllRooms();
+                    displayAllRooms(adminResource);
                     break;
                 case 3:
                     // Visualizzazione di tutte le prenotazioni
-                    displayAllReservations();
+                    displayAllReservations(adminResource);
                     break;
                 case 4:
                     // Aggiunta di una stanza
-                    addRoom();
+                    System.out.println("Is it a free room? ");
+                    String isFreeRoom = scanner.next().trim().toLowerCase();
+                    System.out.println("Write the room number in euro. ");
+                    String roomNumber = scanner.next().trim().toUpperCase();
+                    double roomPrice = 0;
+                    if (!isFreeRoom.contains("y")) {
+                        System.out.println("Write the price of the room. ");
+                        roomPrice = scanner.nextDouble();
+                    }
+                    System.out.println("Write if the room is a single or a double room.");
+                    String isDoubleRoom = scanner.next().trim().toLowerCase();
+                    RoomType enumeration = isDoubleRoom.contains("d")
+                            ? RoomType.DOUBLE : RoomType.SINGLE;
+
+                    IRoom room4 = isFreeRoom.contains("y")
+                            ? new FreeRoom(roomNumber, enumeration)
+                            : new Room(roomNumber, roomPrice, enumeration);
+                    addRoom(adminResource, room4 );
+                    System.out.println("Room added.");
                     break;
                 case 5:
                     // Ritorno al menu principale
@@ -177,19 +188,44 @@ public class Main {
         }
     }
 
-    private static void displayAllCustomers() {
-
+    private static void displayAllCustomers(AdminResource adminResource) {
+        adminResource.getAllCustomers();
+        for (Customer customer : adminResource.getAllCustomers()) {
+            System.out.println(customer);
+        }
     }
 
-    private static void displayAllRooms() {
-
+    private static void displayAllRooms(AdminResource adminResource) {
+        adminResource.getAllRooms();
+        for (IRoom room : adminResource.getAllRooms()) {
+            System.out.println(room);
+        }
     }
 
-    private static void displayAllReservations() {
-
+    private static void displayAllReservations(AdminResource adminResource) {
+        adminResource.displayAllReservations();
     }
 
-    private static void addRoom() {
+    private static void addRoom(AdminResource adminResource, IRoom room4) {
+        List<IRoom> rooms = new ArrayList<>();
+        rooms.add(room4);
+        adminResource.addRoom(rooms);
+    }
 
+
+    public static Customer createCustomer(Scanner scanner) {
+        System.out.println("Write your first name");
+        String firstName = scanner.next().trim().toLowerCase();
+        System.out.println("Write your second name");
+        String secondName = scanner.next().trim().toLowerCase();
+        System.out.println("Write your email");
+        String email = scanner.next().trim().toLowerCase();
+
+        try {
+            return new Customer(firstName, secondName, email);
+        } catch (IllegalArgumentException ex) {
+            System.err.println("Invalid email.");
+        }
+        return null;
     }
 }

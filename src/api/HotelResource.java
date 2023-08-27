@@ -36,6 +36,9 @@ public class HotelResource {
 
     public Reservation bookARoom(String customerEmail, IRoom room, Date checkInDate, Date checkOutDate) {
         Customer customer = customerService.getCustomer(customerEmail);
+        if (customer == null) {
+            throw new NullPointerException("Customer not found.");
+        }
         // Check if the room is available for the specified date range
         Collection<IRoom> availableRooms = reservationService.findRooms(checkInDate, checkOutDate);
         if (!availableRooms.contains(room)) {
