@@ -5,7 +5,6 @@ import java.util.Scanner;
 public class AdminMenu {
     public static void displayAdminMenu() {
         System.out.println("Admin Menu");
-        System.out.println("0. Populate with test data");
         System.out.println("1. See all customers");
         System.out.println("2. See all rooms");
         System.out.println("3. See all reservations");

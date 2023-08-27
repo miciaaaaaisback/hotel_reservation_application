@@ -2,6 +2,7 @@ package service;
 
 import model.Customer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 //Per condividere il set di dati dei clienti tra tutte le istanze di CustomerService, dichiaro la variabile customers come static,
@@ -12,7 +13,11 @@ import java.util.Map;
 //l'uguaglianza e l'identificazione degli oggetti. Di conseguenza, se hai una collezione di oggetti CustomerService, sovrascrivere
 //questi metodi può influire sulla corretta gestione degli oggetti all'interno della collezione.
 public class CustomerService {
-    private static Map<String, Customer> customers;
+    private static CustomerService INSTANCE; //KEBAB_CASE
+    private Map<String, Customer> customers = new HashMap<>();
+
+    private CustomerService() {}
+
     public Customer addCustomer(String firstName, String lastName, String email) {
         Customer customer = new Customer(firstName, lastName, email);
         customers.put(email, customer);
@@ -26,14 +31,10 @@ public class CustomerService {
         return customers.values();
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+    public static CustomerService getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new CustomerService();
+        }
+        return INSTANCE;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
 }

@@ -10,6 +10,21 @@ public class FreeRoom extends Room {
     }
 
     @Override
+    public boolean isFree() {
+       return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "FreeRoom{" +
                 "roomNumber='" + getRoomNumber() + '\'' +
