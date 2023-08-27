@@ -3,7 +3,7 @@ package api;
 import java.util.Scanner;
 
 public class AdminMenu {
-    public static void displayAdminMenu() {
+    public void displayAdminMenu() {
         System.out.println("Admin Menu");
         System.out.println("1. See all customers");
         System.out.println("2. See all rooms");
@@ -13,7 +13,7 @@ public class AdminMenu {
         System.out.print("Please select an option (0-5): ");
     }
 
-    public static int getAdminChoice() {
+    public int getAdminChoice() {
         Scanner scanner = new Scanner(System.in);
         int choice = scanner.nextInt();
         scanner.nextLine();

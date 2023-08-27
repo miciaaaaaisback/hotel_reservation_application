@@ -11,8 +11,12 @@ import java.util.List;
 public class AdminResource {
 
     // Reference to the CustomerService and ReservationService
+    private static AdminResource INSTANCE;
     private CustomerService customerService = CustomerService.getInstance();
     private ReservationService reservationService = ReservationService.getInstance();
+
+    private AdminResource() {
+    }
 
     // Get a customer by email
     public Customer getCustomer(String email) {
@@ -39,5 +43,12 @@ public class AdminResource {
     // Display all reservations
     public void displayAllReservations() {
         reservationService.printAllReservations();
+    }
+
+    public static AdminResource getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new AdminResource();
+        }
+        return INSTANCE;
     }
 }

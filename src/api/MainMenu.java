@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class MainMenu {
 
-    public static void displayMenu() {
+    public void displayMenu() {
         System.out.println("Welcome to the Hotel Reservation System!");
         System.out.println("1. Find and reserve a room");
         System.out.println("2. See my reservations");
@@ -13,7 +13,7 @@ public class MainMenu {
         System.out.println("5. Exit");
     }
 
-    public static int getUserChoice() {
+    public int getUserChoice() {
         Scanner scanner = new Scanner(System.in);
         int choice = scanner.nextInt();
         scanner.nextLine(); // Consume the newline character

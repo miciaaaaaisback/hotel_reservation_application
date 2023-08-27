@@ -9,14 +9,18 @@ public class Customer {
     private final String email;
 
     public Customer(String firstName, String lastName, String email) {
+        checkEmail(email);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email.toLowerCase();
+    }
+
+    public static void checkEmail(String email) {
         String emailRegex = "^(\\S+)@(\\S+)\\.com$";
         Pattern pattern = Pattern.compile(emailRegex);
         if (!pattern.matcher(email).matches()) {
             throw new IllegalArgumentException("The email is not valid");
         }
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email.toLowerCase();
     }
 
     public String getFirstName() {

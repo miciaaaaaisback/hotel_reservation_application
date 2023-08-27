@@ -15,8 +15,12 @@ public class HotelResource {
     //Creare istanze delle classi CustomerService e ReservationService all'interno della classe HotelResource è un modo per ottenere
     //un riferimento a queste istanze e poterle utilizzare nei metodi della classe HotelResource.
     //Questa approccio è chiamato "dependency injection" (iniezione di dipendenza), e serve a separare l'istanziazione delle dipendenze dal resto del codice.
+
+    private static HotelResource INSTANCE;
     private CustomerService customerService = CustomerService.getInstance();
     private ReservationService reservationService = ReservationService.getInstance();
+
+    private HotelResource() {}
 
     public Customer getCustomer(String email) {
         return customerService.getCustomer(email);
@@ -49,6 +53,13 @@ public class HotelResource {
 
     public Collection<IRoom> findARoom(Date checkIn, Date checkOut) {
         return reservationService.findRooms(checkIn, checkOut);
+    }
+
+    public static HotelResource getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new HotelResource();
+        }
+        return INSTANCE;
     }
 }
 

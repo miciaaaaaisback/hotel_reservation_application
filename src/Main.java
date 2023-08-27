@@ -1,32 +1,52 @@
 import api.AdminMenu;
+import api.AdminResource;
 import api.HotelResource;
 import api.MainMenu;
 import model.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class Main {
 
     public static void main(String[] args) {
-        HotelResource hotelResource = new HotelResource();
+        AdminResource adminResource = AdminResource.getInstance();
+        HotelResource hotelResource = HotelResource.getInstance();
+        AdminMenu adminMenu = new AdminMenu();
+        MainMenu mainMenu = new MainMenu();
         Scanner scanner = new Scanner(System.in);
-        boolean exit = false;
 
-        initializeSystem(hotelResource);
+        initializeSystem(adminResource, hotelResource);
 
-        while (!exit) {
-            MainMenu.displayMenu();
-            int choice = MainMenu.getUserChoice();
+        while (true) {
+            mainMenu.displayMenu();
+            int choice = mainMenu.getUserChoice();
 
             switch (choice) {
                 case 1:
                     // Ricerca e prenotazione di una stanza
-                    handleRoomReservation();
+                    System.out.println("Write your email");
+                    String email = scanner.next().trim();
+                    try {
+                        Customer.checkEmail(email);
+                    } catch (IllegalArgumentException ex) {
+                        System.err.println("Invalid email.");
+                        break;
+                    }
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                    Date checkIn;
+                    Date checkOut;
+                    try {
+                        checkIn = sdf.parse(scanner.next().trim());
+                        checkOut = sdf.parse(scanner.next().trim());
+                    } catch (ParseException ex) {
+                        System.err.println("Date format not correct.");
+                        break;
+                    }
+                    handleRoomReservation(hotelResource, email, checkIn, checkOut);
                     break;
                 case 2:
                     // Visualizzazione delle prenotazioni dell'utente
@@ -38,34 +58,52 @@ public class Main {
                     break;
                 case 4:
                     // Accesso all'area amministrativa
-                    handleAdminMenu();
+                    handleAdminMenu(adminMenu);
                     break;
                 case 5:
                     // Uscita dal programma
-                    exit = true;
-                    break;
+                    System.out.println("Thank you for using the Hotel Reservation System!");
+                    return;
                 default:
                     System.out.println("Invalid choice. Please select a valid option.");
-                    break;
             }
         }
 
-        System.out.println("Thank you for using the Hotel Reservation System!");
+
     }
 
-    private static void initializeSystem(HotelResource hotelResource) {
+    private static void initializeSystem(AdminResource adminResource, HotelResource hotelResource) {
 
         Room room1 = new Room("101", 100.0, RoomType.SINGLE);
         Room room2 = new Room("102", 150.0, RoomType.DOUBLE);
+        Room room3 = new FreeRoom("103", RoomType.SINGLE);
+
+        List<IRoom> roomList = new ArrayList<>();
+        roomList.add(room1);
+        roomList.add(room2);
+        roomList.add(room3);
+        adminResource.addRoom(roomList);
 
         hotelResource.createACustomer("Mario", "Rossi", "mario@gmail.com");
         hotelResource.createACustomer("Arturo", "Gatti", "arturo@gatti.com");
 
-        hotelResource.getRoom("101").isFree();
     }
 
-    private static void handleRoomReservation() {
-
+    private static void handleRoomReservation(
+            HotelResource hotelResource,
+            String email,
+            Date checkInDate,
+            Date checkOutDate) {
+        Collection<IRoom> roomsFound = hotelResource.findARoom(checkInDate, checkOutDate);
+        try {
+            Reservation reservedRoom = hotelResource.bookARoom(
+                    email,
+                    roomsFound.stream().findFirst().get(),
+                    checkInDate,
+                    checkOutDate);
+        } catch (Exception ex) {
+            System.out.println("No rooms avaiable");
+        }
     }
 
     private static void handleUserReservations() {
@@ -76,12 +114,12 @@ public class Main {
 
     }
 
-    private static void handleAdminMenu() {
+    private static void handleAdminMenu(AdminMenu adminMenu) {
         boolean backToMainMenu = false;
 
         while (!backToMainMenu) {
-            AdminMenu.displayAdminMenu();
-            int adminChoice = AdminMenu.getAdminChoice();
+            adminMenu.displayAdminMenu();
+            int adminChoice = adminMenu.getAdminChoice();
 
             switch (adminChoice) {
                 case 1:
