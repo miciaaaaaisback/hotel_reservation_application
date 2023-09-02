@@ -1,5 +1,6 @@
 package api;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MainMenu {
@@ -15,9 +16,19 @@ public class MainMenu {
 
     public int getUserChoice() {
         Scanner scanner = new Scanner(System.in);
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+        int choice = -1;
+        boolean validInput = false;
+        while (!validInput) {
+            try {
+                choice = scanner.nextInt();
+                validInput = true;
+            } catch (InputMismatchException e) {
+                System.err.println("Input non valido. Inserisci un numero intero valido:");
+                scanner.next();
+            }
+        }
         return choice;
-
     }
 }
+
+

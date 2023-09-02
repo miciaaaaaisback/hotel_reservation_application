@@ -1,8 +1,6 @@
 package api;
 
-import model.Customer;
-import model.IRoom;
-import model.Reservation;
+import model.*;
 import service.CustomerService;
 import service.ReservationService;
 
@@ -52,6 +50,15 @@ public class HotelResource {
 
     public Collection<IRoom> findARoom(Date checkIn, Date checkOut) {
         return reservationService.findRooms(checkIn, checkOut);
+    }
+
+    public Collection<IRoom> findARoom(Date checkIn, Date checkOut, boolean freeRoom) {
+        Collection<IRoom> rooms = findARoom(checkIn, checkOut);
+        if (freeRoom) {
+            return rooms.stream().filter(room -> room instanceof FreeRoom).toList();
+        } else {
+            return rooms.stream().filter(room -> !(room instanceof FreeRoom)).toList();
+        }
     }
 
     public static HotelResource getInstance() {

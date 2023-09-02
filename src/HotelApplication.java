@@ -6,9 +6,11 @@ import model.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-public class Main {
+public class HotelApplication {
 
     public static void main(String[] args) {
         AdminResource adminResource = AdminResource.getInstance();
@@ -16,8 +18,6 @@ public class Main {
         AdminMenu adminMenu = new AdminMenu();
         MainMenu mainMenu = new MainMenu();
         Scanner scanner = new Scanner(System.in);
-
-        initializeSystem(adminResource, hotelResource);
 
         while (true) {
             mainMenu.displayMenu();
@@ -52,7 +52,8 @@ public class Main {
                         System.err.println("Date format not correct.");
                         break;
                     }
-                    handleRoomReservation(hotelResource, customer, checkIn, checkOut);
+                    handleRoomReservation(hotelResource, customer, checkIn, checkOut, scanner);
+
                     break;
                 case 2:
                     // Visualizzazione delle prenotazioni dell'utente
@@ -73,7 +74,7 @@ public class Main {
                     break;
                 case 4:
                     // Accesso all'area amministrativa
-                    handleAdminMenu(adminMenu, adminResource, scanner);
+                    handleAdminMenu(adminMenu, adminResource, scanner, hotelResource);
                     break;
                 case 5:
                     // Uscita dal programma
@@ -100,7 +101,7 @@ public class Main {
         adminResource.addRoom(roomList);
 
         hotelResource.createACustomer("Mario", "Rossi", "mario@gmail.com");
-        hotelResource.createACustomer("Arturo", "Gatti", "arturo@gatti.com");
+        hotelResource.createACustomer("Arturo", "Gatti", "arturo@gmail.com");
 
     }
 
@@ -108,7 +109,7 @@ public class Main {
             HotelResource hotelResource,
             Customer customer,
             Date checkInDate,
-            Date checkOutDate) {
+            Date checkOutDate, Scanner scanner) {
         Collection<IRoom> roomsFound = hotelResource.findARoom(checkInDate, checkOutDate);
         try {
             Reservation reservedRoom = hotelResource.bookARoom(
@@ -121,6 +122,31 @@ public class Main {
             System.err.println("Customer unregistered.");
         } catch (Exception ex) {
             System.err.println("No rooms avaiable");
+            System.out.println("How many days could you change your check in date?");
+            System.out.print("My checkin tollerance is: ");
+            int toleranceDays = Math.abs(scanner.nextInt());
+            if (toleranceDays == 0) {
+                System.err.println("No rooms available.");
+            } else {
+                for (int i = toleranceDays * -1; i <= toleranceDays; i++) {
+                    if (i == 0) i++;
+                    Instant instant = checkInDate.toInstant().plus(i, ChronoUnit.DAYS);
+                    Instant instant2 = checkOutDate.toInstant().plus(i, ChronoUnit.DAYS);
+                    Date checkInDateTolerance = Date.from(instant);
+                    Date checkOutDateTolerance = Date.from(instant2);
+                    try {
+                        Reservation reservedRoom = hotelResource.bookARoom(
+                                customer.getEmail(),
+                                roomsFound.stream().findFirst().get(),
+                                checkInDateTolerance,
+                                checkOutDateTolerance);
+                        System.out.println("Room reserved: " + reservedRoom);
+                    } catch (Exception ex2) {
+                        System.err.println("No rooms avaiable");
+                    }
+                }
+            }
+
         }
     }
 
@@ -137,7 +163,7 @@ public class Main {
         System.out.println("User account successfully created.");
     }
 
-    private static void handleAdminMenu(AdminMenu adminMenu, AdminResource adminResource, Scanner scanner) {
+    private static void handleAdminMenu(AdminMenu adminMenu, AdminResource adminResource, Scanner scanner, HotelResource hotelResource) {
         boolean backToMainMenu = false;
 
         while (!backToMainMenu) {
@@ -145,6 +171,9 @@ public class Main {
             int adminChoice = adminMenu.getAdminChoice();
 
             switch (adminChoice) {
+                case 0:
+                    //Popola con dati di test
+                    initializeSystem(adminResource, hotelResource);
                 case 1:
                     // Visualizzazione di tutti i clienti
                     displayAllCustomers(adminResource);
@@ -161,11 +190,11 @@ public class Main {
                     // Aggiunta di una stanza
                     System.out.println("Is it a free room? ");
                     String isFreeRoom = scanner.next().trim().toLowerCase();
-                    System.out.println("Write the room number in euro. ");
+                    System.out.println("Write the room number. ");
                     String roomNumber = scanner.next().trim().toUpperCase();
                     double roomPrice = 0;
                     if (!isFreeRoom.contains("y")) {
-                        System.out.println("Write the price of the room. ");
+                        System.out.println("Write the price of the room in euro. ");
                         roomPrice = scanner.nextDouble();
                     }
                     System.out.println("Write if the room is a single or a double room.");
