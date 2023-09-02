@@ -70,7 +70,11 @@ public class HotelApplication {
                     break;
                 case 3:
                     // Creazione di un account
-                    handleAccountCreation(hotelResource, createCustomer(scanner));
+                    try {
+                        handleAccountCreation(hotelResource, createCustomer(scanner));
+                    } catch (NullPointerException ex) {
+                        System.err.println("Input not valid.");
+                    }
                     break;
                 case 4:
                     // Accesso all'area amministrativa
