@@ -53,12 +53,33 @@ public class HotelResource {
     }
 
     public Collection<IRoom> findARoom(Date checkIn, Date checkOut, boolean freeRoom) {
-        Collection<IRoom> rooms = findARoom(checkIn, checkOut);
+//        Collection<IRoom> rooms = reservationService.getAllRooms(); // findARoom(checkIn, checkOut);
+        Collection<IRoom> rooms = findARoom(checkIn, checkOut); // findARoom(checkIn, checkOut);
         if (freeRoom) {
             return rooms.stream().filter(room -> room instanceof FreeRoom).toList();
         } else {
             return rooms.stream().filter(room -> !(room instanceof FreeRoom)).toList();
         }
+    }
+
+    /**
+     *
+     * @param user
+     * @param checkInDate
+     * @param checkOutDate
+     * @return true in case of collision, false otherwise
+     */
+    public boolean verifyReservationsCollisionSameUser(Customer user, Date checkInDate, Date checkOutDate) {
+        Collection<Reservation> userReservations = getCustomersReservations(user.getEmail());
+        for (Reservation userReservation : userReservations) {
+            if (!((userReservation.getCheckInDate().before(checkInDate)
+                    && !checkInDate.after(userReservation.getCheckOutDate()))
+                    || (!checkOutDate.before(userReservation.getCheckInDate())
+                    && userReservation.getCheckOutDate().after(checkOutDate)))) {
+                return true;
+            }
+        }
+       return false;
     }
 
     public static HotelResource getInstance() {

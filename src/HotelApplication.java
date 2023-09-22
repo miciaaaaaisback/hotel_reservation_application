@@ -28,14 +28,13 @@ public class HotelApplication {
                     // Ricerca e prenotazione di una stanza
                     System.out.println("Do you already have an account? Yes/No.");
                     String haveAnAccount = scanner.next().trim().toLowerCase();
-                    Customer customer = null;
-                    String email = null;
+                    Customer customer;
+                    String email;
                     if (!haveAnAccount.contains("y")) {
                         System.err.println("You must have an account.");
                         break;
-//                        customer = createCustomer(scanner);
                     } else {
-                        System.out.println("Write yuor email.");
+                        System.out.println("Write your email.");
                         email = scanner.next().trim().toLowerCase();
                         customer = hotelResource.getCustomer(email);
                     }
@@ -44,17 +43,21 @@ public class HotelApplication {
                     Date checkIn;
                     Date checkOut;
                     try {
-                        System.out.println("Write your check in date in the format dd/MM/yyyy");
+                        System.out.println("Write your check-in date in the format dd/MM/yyyy");
                         checkIn = sdf.parse(scanner.next().trim());
-                        System.out.println("Write your check out date in the format dd/MM/yyyy");
+                        System.out.println("Write your check-out date in the format dd/MM/yyyy");
                         checkOut = sdf.parse(scanner.next().trim());
                     } catch (ParseException ex) {
                         System.err.println("Date format not correct.");
                         break;
                     }
-                    handleRoomReservation(hotelResource, customer, checkIn, checkOut, scanner);
 
+                    System.out.println("Do you want a free room?");
+                    boolean isFree = scanner.next().trim().toLowerCase().startsWith("y");
+
+                    handleRoomReservation(hotelResource, customer, checkIn, checkOut, scanner, isFree);
                     break;
+
                 case 2:
                     // Visualizzazione delle prenotazioni dell'utente
                     System.out.println("Write your email");
@@ -88,12 +91,10 @@ public class HotelApplication {
                     System.out.println("Invalid choice. Please select a valid option.");
             }
         }
-
-
     }
 
     private static void initializeSystem(AdminResource adminResource, HotelResource hotelResource) {
-
+        Scanner scanner = new Scanner(System.in);
         Room room1 = new Room("101", 100.0, RoomType.SINGLE);
         Room room2 = new Room("102", 150.0, RoomType.DOUBLE);
         Room room3 = new FreeRoom("103", RoomType.SINGLE);
@@ -107,51 +108,116 @@ public class HotelApplication {
         hotelResource.createACustomer("Mario", "Rossi", "mario@gmail.com");
         hotelResource.createACustomer("Arturo", "Gatti", "arturo@gmail.com");
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        Date checkInDate = null;
+        Date checkOutDate = null;
+
+        try {
+            checkInDate = dateFormat.parse("05/08/2023");
+            checkOutDate = dateFormat.parse("10/08/2023");
+        } catch (ParseException e) {
+            System.err.println("Formato data non valido. Inserisci un'altra data:");
+            scanner.next();
+        }
+
+        hotelResource.bookARoom("mario@gmail.com", room3, checkInDate, checkOutDate);
     }
 
     private static void handleRoomReservation(
             HotelResource hotelResource,
             Customer customer,
             Date checkInDate,
-            Date checkOutDate, Scanner scanner) {
-        Collection<IRoom> roomsFound = hotelResource.findARoom(checkInDate, checkOutDate);
-        try {
-            Reservation reservedRoom = hotelResource.bookARoom(
-                    customer.getEmail(),
-                    roomsFound.stream().findFirst().get(),
-                    checkInDate,
-                    checkOutDate);
-            System.out.println("Room reserved: " + reservedRoom);
-        } catch (NullPointerException ex) {
-            System.err.println("Customer unregistered.");
-        } catch (Exception ex) {
-            System.err.println("No rooms avaiable");
-            System.out.println("How many days could you change your check in date?");
-            System.out.print("My checkin tollerance is: ");
-            int toleranceDays = Math.abs(scanner.nextInt());
-            if (toleranceDays == 0) {
+            Date checkOutDate, Scanner scanner, boolean isFree) {
+        List<Reservation> reservations = new ArrayList<>();
+
+        while (true) {
+            Collection<IRoom> roomsFound = hotelResource.findARoom(checkInDate, checkOutDate, isFree);
+            if (roomsFound.isEmpty()) {
                 System.err.println("No rooms available.");
+                int toleranceDays = getToleranceDays(scanner);
+
+                if (toleranceDays == -1) {
+                    // L'utente ha scelto di tornare al menu principale
+                    break;
+                }
+
+                // Aggiungi giorni di tolleranza alle date di check-in e check-out
+                checkInDate = incrementDate(checkInDate, toleranceDays);
+                checkOutDate = incrementDate(checkOutDate, toleranceDays);
+                continue;
             } else {
-                for (int i = toleranceDays * -1; i <= toleranceDays; i++) {
-                    if (i == 0) i++;
-                    Instant instant = checkInDate.toInstant().plus(i, ChronoUnit.DAYS);
-                    Instant instant2 = checkOutDate.toInstant().plus(i, ChronoUnit.DAYS);
-                    Date checkInDateTolerance = Date.from(instant);
-                    Date checkOutDateTolerance = Date.from(instant2);
-                    try {
-                        Reservation reservedRoom = hotelResource.bookARoom(
-                                customer.getEmail(),
-                                roomsFound.stream().findFirst().get(),
-                                checkInDateTolerance,
-                                checkOutDateTolerance);
-                        System.out.println("Room reserved: " + reservedRoom);
-                    } catch (Exception ex2) {
-                        System.err.println("No rooms avaiable");
-                    }
+                System.out.println("Available rooms:");
+                int roomNumber = 1;
+                for (IRoom room : roomsFound) {
+                    System.out.println(roomNumber + ". " + room);
+                    roomNumber++;
+                }
+
+                int selectedRoomNumber;
+                try {
+                    System.out.println("Select a room by entering its number (0 to finish):");
+                    selectedRoomNumber = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.err.println("Invalid input for room number. Please enter a valid number.");
+                    scanner.next(); // Consuma l'input non valido
+                    continue; // Riprende il ciclo per chiedere nuovamente all'utente di selezionare una stanza
+                }
+
+                if (selectedRoomNumber == 0) {
+                    // L'utente ha scelto di terminare la selezione
+                    break;
+                }
+
+                if (selectedRoomNumber < 1 || selectedRoomNumber > roomsFound.size()) {
+                    System.err.println("Invalid room number. Please select a valid room.");
+                    continue; // Riprende il ciclo per chiedere nuovamente all'utente di selezionare una stanza
+                }
+
+                // Ottieni la stanza corretta in base all'indice dell'utente
+                IRoom selectedRoom = roomsFound.toArray(new IRoom[0])[selectedRoomNumber - 1];
+
+                try {
+                    Reservation reservedRoom = hotelResource.bookARoom(
+                            customer.getEmail(),
+                            selectedRoom,
+                            checkInDate,
+                            checkOutDate
+                    );
+                    reservations.add(reservedRoom);
+                    System.out.println("Room reserved: " + reservedRoom);
+                } catch (NullPointerException ex) {
+                    System.err.println("Customer unregistered.");
+                } catch (Exception ex) {
+                    System.err.println("Error while booking the room.");
                 }
             }
-
         }
+
+        if (!reservations.isEmpty()) {
+            System.out.println("Your reservations:");
+            for (Reservation reservation : reservations) {
+                System.out.println(reservation);
+            }
+        }
+    }
+
+    private static int getToleranceDays(Scanner scanner) {
+        System.out.println("Enter how many days out the room recommendation should search if there are no available rooms (0 to cancel and return to the main menu):");
+        int toleranceDays = scanner.nextInt();
+
+        if (toleranceDays == 0) {
+            System.out.println("Returning to the main menu.");
+            return -1; // -1 indica che l'utente ha scelto di annullare
+        }
+
+        return toleranceDays;
+    }
+
+    private static Date incrementDate(Date date, int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, days);
+        return calendar.getTime();
     }
 
     private static void handleUserReservations(HotelResource hotelResource, String email) {
@@ -192,23 +258,40 @@ public class HotelApplication {
                     break;
                 case 4:
                     // Aggiunta di una stanza
-                    System.out.println("Is it a free room? ");
+                    System.out.println("Is it a free room? Yes/No");
                     String isFreeRoom = scanner.next().trim().toLowerCase();
+                    if (!(isFreeRoom.contains("yes") || isFreeRoom.contains("no"))) {
+                        System.out.println("Invalid input.");
+                        break;
+                    }
                     System.out.println("Write the room number. ");
-                    String roomNumber = scanner.next().trim().toUpperCase();
+                    Integer roomNumber = null;
+                    try {
+                        roomNumber = scanner.nextInt();
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid input for room number. Please enter a valid integer.");
+                        scanner.nextLine();
+                    }
                     double roomPrice = 0;
                     if (!isFreeRoom.contains("y")) {
-                        System.out.println("Write the price of the room in euro. ");
-                        roomPrice = scanner.nextDouble();
+                        try {
+                            System.out.println("Write the price of the room in euro. ");
+                            roomPrice = scanner.nextDouble();
+                        } catch (InputMismatchException e) {
+                            System.err.println("Invalid input for room price. Please enter a valid number.");
+                            scanner.nextLine();
+                            break;
+                        }
                     }
-                    System.out.println("Write if the room is a single or a double room.");
+
+                    System.out.println("Write if the room is a single or a double room. SINGLE/DOUBLE");
                     String isDoubleRoom = scanner.next().trim().toLowerCase();
                     RoomType enumeration = isDoubleRoom.contains("d")
                             ? RoomType.DOUBLE : RoomType.SINGLE;
 
                     IRoom room4 = isFreeRoom.contains("y")
-                            ? new FreeRoom(roomNumber, enumeration)
-                            : new Room(roomNumber, roomPrice, enumeration);
+                            ? new FreeRoom(roomNumber.toString(), enumeration)
+                            : new Room(roomNumber.toString(), roomPrice, enumeration);
                     addRoom(adminResource, room4);
                     System.out.println("Room added.");
                     break;

@@ -48,14 +48,17 @@ public class ReservationService {
 
 
     public Collection<IRoom> findRooms(Date checkInDate, Date checkOutDate) {
-        Collection<IRoom> availableRooms = new HashSet<>();
-        for (IRoom room : rooms) {
-            if (room.isFree()) {
-                availableRooms.add(room);
+        Collection<IRoom> availableRooms = new HashSet<>(rooms);
+
+        for (Reservation reservation : reservations) {
+            if (!reservation.getCheckOutDate().before(checkInDate) && !reservation.getCheckInDate().after(checkOutDate)) {
+                availableRooms.remove(reservation.getRoom());
             }
         }
+
         return availableRooms;
     }
+
 
     public Collection<Reservation> getCustomersReservation(Customer customer) {
         Collection<Reservation> customerReservations = new ArrayList<>();
