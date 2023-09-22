@@ -137,11 +137,9 @@ public class HotelApplication {
                 int toleranceDays = getToleranceDays(scanner);
 
                 if (toleranceDays == -1) {
-                    // L'utente ha scelto di tornare al menu principale
                     break;
                 }
 
-                // Aggiungi giorni di tolleranza alle date di check-in e check-out
                 checkInDate = incrementDate(checkInDate, toleranceDays);
                 checkOutDate = incrementDate(checkOutDate, toleranceDays);
                 continue;
@@ -159,21 +157,19 @@ public class HotelApplication {
                     selectedRoomNumber = scanner.nextInt();
                 } catch (InputMismatchException e) {
                     System.err.println("Invalid input for room number. Please enter a valid number.");
-                    scanner.next(); // Consuma l'input non valido
-                    continue; // Riprende il ciclo per chiedere nuovamente all'utente di selezionare una stanza
+                    scanner.next();
+                    continue;
                 }
 
                 if (selectedRoomNumber == 0) {
-                    // L'utente ha scelto di terminare la selezione
                     break;
                 }
 
                 if (selectedRoomNumber < 1 || selectedRoomNumber > roomsFound.size()) {
                     System.err.println("Invalid room number. Please select a valid room.");
-                    continue; // Riprende il ciclo per chiedere nuovamente all'utente di selezionare una stanza
+                    continue;
                 }
 
-                // Ottieni la stanza corretta in base all'indice dell'utente
                 IRoom selectedRoom = roomsFound.toArray(new IRoom[0])[selectedRoomNumber - 1];
 
                 try {
@@ -207,7 +203,7 @@ public class HotelApplication {
 
         if (toleranceDays == 0) {
             System.out.println("Returning to the main menu.");
-            return -1; // -1 indica che l'utente ha scelto di annullare
+            return -1;
         }
 
         return toleranceDays;
